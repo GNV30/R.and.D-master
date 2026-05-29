@@ -1,0 +1,32 @@
+---
+- name: Deploy IPv4 Chat Application
+  hosts: all
+  become: true
+  vars:
+    src_dir: "{{ playbook_dir }}/../../src.Python"
+    app_dir: /home/vagrant/ipv4_chat
+
+  tasks:
+    - name: Create app directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
+
+    - name: Copy IPv4 Chat source files
+      ansible.posix.synchronize:
+        src: "{{ src_dir }}/"
+        dest: "{{ app_dir }}/"
+        rsync_opts:
+          - "--exclude=__pycache__"
+          - "--exclude=*.pyc"
+          - "--exclude=.pytest_cache"
+
+    - name: Ensure correct ownership on app files
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        owner: vagrant
+        group: vagrant
+        recurse: true
